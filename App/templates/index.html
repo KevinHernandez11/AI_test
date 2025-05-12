@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Asistente de Compras IA</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Asistente de compras inteligente</h1>
+        <p class="intro-text">¡Hola! Soy tu asistente para crear listas de compras. Pregúntame sobre productos, recetas o consejos de compra.</p>
+
+        <form id="question-form">
+            <div class="input-group">
+                <input type="text" id="user-input" name="question" placeholder="¿Qué te gustaría preguntar?" required>
+                <button type="submit" id="submit-button">Preguntar</button>
+            </div>
+            <div class="examples">
+                <p>Ejemplos de preguntas:</p>
+                <ul>
+                    <li><a href="#" class="example-question">¿Qué productos necesito para hacer una lasaña?</a></li>
+                    <li><a href="#" class="example-question">¿Cuáles son los productos más económicos para el desayuno?</a></li>
+                    <li><a href="#" class="example-question">¿Qué necesito para un desayuno saludable?</a></li>
+                </ul>
+            </div>
+        </form>
+
+        <div id="response-area" class="hidden">
+            <h2>Respuesta:</h2>
+            <div id="answer" class="answer-box">
+                <div id="loading-indicator" class="hidden">
+                    <div class="loader"></div>
+                    <p>Procesando tu pregunta...</p>
+                </div>
+                <div id="response-container" class="hidden">
+                    <p id="response-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Esto es lo que hace que cuando haces click en un ejemplo de pregunta, se envie la pregunta al formulario
+        document.querySelectorAll('.example-question').forEach(example => {
+            example.addEventListener('click', function(e) {
+                e.preventDefault();
+                const questionText = this.textContent;
+                document.getElementById('user-input').value = questionText;
+            });
+        });
+
+        // Esto es lo que hace que cuando haces click en el boton de enviar, se envie la pregunta al formulario
+        document.getElementById('question-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const questionInput = document.getElementById('user-input');
+            const submitButton = document.getElementById('submit-button');
+            const responseArea = document.getElementById('response-area');
+            const responseText = document.getElementById('response-text');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const responseContainer = document.getElementById('response-container');
+
+            // Deshabilitar el botón de enviar durante la solicitud
+            submitButton.disabled = true;
+            
+            // Esto es para mostrar el area de respuesta
+            responseArea.classList.remove('hidden');
+            
+            // Para mostrar el indicador de carga y ocultar el contenedor de respuesta
+            loadingIndicator.classList.remove('hidden');
+            responseContainer.classList.add('hidden');
+            
+            try {
+                // Crear FormData para enviar la pregunta
+                const formData = new FormData();
+                formData.append('question', questionInput.value);
+                
+                // Enviar la solicitud al backend
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Ocultar indicador de carga
+                loadingIndicator.classList.add('hidden');
+                
+                // Procesar la respuesta
+                if (response.ok) {
+                    const data = await response.json();
+                    responseText.textContent = data.answer;
+                    responseText.className = 'ia-response';
+                    responseContainer.classList.remove('hidden');
+                } else {
+                    const error = await response.json();
+                    responseText.textContent = `Error: ${error.error}`;
+                    responseText.className = 'error';
+                    responseContainer.classList.remove('hidden');
+                }
+            } catch (error) {
+                // Ocultar indicador de carga
+                loadingIndicator.classList.add('hidden');
+                
+                responseText.textContent = `Error de conexión: ${error.message}`;
+                responseText.className = 'error';
+                responseContainer.classList.remove('hidden');
+            } finally {
+                // Habilitar el botón de enviar
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

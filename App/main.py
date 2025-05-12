@@ -1,4 +1,4 @@
-from flask import Flask,request, jsonify
+from flask import Flask,request, jsonify, render_template
 from flask_cors import CORS
 from openai import OpenAI
 from supabase import create_client, Client
@@ -22,7 +22,7 @@ data = update.data
 
 @app.route('/')
 def home():
-    return "Hola mundo!"
+    return render_template('index.html')
 
 @app.route('/api/ask', methods=['POST'])
 def ask_ai():
