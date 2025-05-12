@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con la IA</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactúa con la IA</h1>
+
+        <!-- Formulario que hace POST -->
+        <form action="/api/ask" method="POST">
+            <label for="user-input">Escribe tu pregunta:</label>
+            <input type="text" name="question" placeholder="Escribe tu pregunta aquí" required>
+            <button type="submit" name="crear">Pregunta</button>
+        </form>
+
+        <h2>Respuesta de la IA:</h2>
+        <div id="answer">
+            <!-- Aquí se mostrará la respuesta de la IA -->
+            {% if answer %}
+                <p>{{ answer }}</p>
+            {% else %}
+                <p>Esperando respuesta...</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
